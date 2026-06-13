@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShopEasy - Your Online Store{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="{% url 'store:home' %}" class="logo">
+                    <i class="fas fa-shopping-bag"></i> ShopEasy
+                </a>
+                <div class="nav-links">
+                    <a href="{% url 'store:home' %}">Home</a>
+                    <a href="{% url 'store:product_list' %}">Products</a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_owner or user.is_superuser %}
+                            <a href="{% url 'store:owner_dashboard' %}">Dashboard</a>
+                        {% else %}
+                            <a href="{% url 'store:order_list' %}">My Orders</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="nav-actions">
+                    {% if not user.is_owner %}
+                    <a href="{% url 'store:cart' %}" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <div class="user-menu">
+                            <span class="user-greeting">Hi, {{ user.first_name|default:user.username }}!</span>
+                            <a href="{% url 'accounts:logout' %}" class="btn-outline">Logout</a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login_choice' %}" class="btn-primary">Login</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3><i class="fas fa-shopping-bag"></i> ShopEasy</h3>
+                    <p>Your trusted online marketplace</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="{% url 'store:home' %}">Home</a>
+                    <a href="{% url 'store:product_list' %}">Products</a>
+                    <a href="{% url 'store:cart' %}">Cart</a>
+                </div>
+                <div class="footer-account">
+                    <h4>Account</h4>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:profile' %}">Profile</a>
+                        <a href="{% url 'accounts:logout' %}">Logout</a>
+                    {% else %}
+                        <a href="{% url 'accounts:customer_login' %}">Customer Login</a>
+                        <a href="{% url 'accounts:owner_login' %}">Owner Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 ShopEasy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

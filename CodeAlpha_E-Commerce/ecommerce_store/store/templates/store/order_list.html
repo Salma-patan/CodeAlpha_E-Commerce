@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}My Orders - ShopEasy{% endblock %}
+{% block content %}
+<div style="padding: 30px 0;">
+    <h1 class="section-title">📦 My Orders</h1>
+    <p class="section-subtitle">Track all your orders</p>
+    
+    {% if orders %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>#{{ order.id }}</strong></td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>{{ order.items.count }} item(s)</td>
+                    <td><strong>₹{{ order.total_price }}</strong></td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                    <td><a href="{% url 'store:order_detail' order.id %}" class="btn-sm btn-outline">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-box"></i>
+        <h3>No orders yet</h3>
+        <p>Start shopping and your orders will appear here</p>
+        <a href="{% url 'store:product_list' %}" class="btn-primary">Shop Now</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

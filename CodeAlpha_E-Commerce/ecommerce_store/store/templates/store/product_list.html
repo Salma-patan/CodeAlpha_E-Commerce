@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Products - ShopEasy{% endblock %}
+{% block content %}
+<div style="padding: 30px 0;">
+    <h1 class="section-title">All Products</h1>
+    <p class="section-subtitle">Showing {{ products.count }} products</p>
+    
+    <form method="get" class="search-bar">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search products...">
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+        <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Search</button>
+        {% if query %}<a href="{% url 'store:product_list' %}" class="btn-outline">Clear</a>{% endif %}
+    </form>
+    
+    {% if categories %}
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px;">
+        <a href="{% url 'store:product_list' %}{% if query %}?q={{ query }}{% endif %}" 
+           class="btn-sm {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="{% url 'store:product_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}" 
+           class="btn-sm {% if selected_category == cat.slug %}btn-primary{% else %}btn-outline{% endif %}">{{ cat.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if products %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-img">
+                {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}<i class="fas fa-box no-img"></i>{% endif %}
+            </div>
+            <div class="product-info">
+                {% if product.category %}<p class="product-category">{{ product.category.name }}</p>{% endif %}
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-price">₹<span>{{ product.price }}</span></p>
+                <p class="product-stock {% if not product.is_in_stock %}out{% endif %}">
+                    {% if product.is_in_stock %}✓ In Stock{% else %}✗ Out of Stock{% endif %}
+                </p>
+                <div class="product-actions">
+                    <a href="{% url 'store:product_detail' product.slug %}" class="btn-outline btn-sm">View Details</a>
+                    {% if product.is_in_stock and not user.is_owner %}
+                    <form method="post" action="{% url 'store:add_to_cart' product.id %}" style="flex:1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-primary btn-sm" style="width:100%">
+                            <i class="fas fa-cart-plus"></i> Add
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>No products found</h3>
+        <p>Try a different search or browse all products</p>
+        <a href="{% url 'store:product_list' %}" class="btn-primary">Browse All</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

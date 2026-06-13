@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Owner Dashboard - ShopEasy{% endblock %}
+{% block content %}
+<div style="padding: 30px 0;">
+    <div class="dashboard-header">
+        <h1>🏪 Owner Dashboard</h1>
+        <p>Welcome, {{ user.get_full_name|default:user.username }}! Manage your store below.</p>
+    </div>
+    
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_products }}</div>
+            <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_orders }}</div>
+            <div class="stat-label">Recent Orders</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="font-size: 1.5rem;">
+                ₹{% for o in orders %}{{ o.total_price|floatformat:0 }}{% if not forloop.last %}+{% endif %}{% endfor %}
+            </div>
+            <div class="stat-label">Revenue (Recent)</div>
+        </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="section-title">My Products</h2>
+        <a href="{% url 'store:add_product' %}" class="btn-primary">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+    </div>
+    
+    {% if products %}
+    <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.category.name|default:"—" }}</td>
+                    <td>₹{{ product.price }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>
+                        {% if product.is_available %}
+                        <span class="badge badge-delivered">Active</span>
+                        {% else %}
+                        <span class="badge badge-cancelled">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="display:flex; gap:8px;">
+                        <a href="{% url 'store:product_detail' product.slug %}" class="btn-sm btn-outline">View</a>
+                        <a href="{% url 'store:edit_product' product.slug %}" class="btn-sm btn-primary">Edit</a>
+                        <form method="post" action="{% url 'store:delete_product' product.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Delete {{ product.name }}?')">Del</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="margin-bottom: 40px;">
+        <i class="fas fa-box-open"></i>
+        <h3>No products yet</h3>
+        <p>Add your first product to start selling</p>
+        <a href="{% url 'store:add_product' %}" class="btn-primary">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+    </div>
+    {% endif %}
+    
+    {% if orders %}
+    <h2 class="section-title" style="margin-bottom: 20px;">Recent Orders</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>#{{ order.id }}</strong></td>
+                    <td>{{ order.customer.username }}</td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>₹{{ order.total_price }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                    <td>
+                        <form method="post" action="{% url 'store:update_order_status' order.id %}" style="display:flex;gap:5px;">
+                            {% csrf_token %}
+                            <select name="status" style="padding:4px 8px; border: 2px solid var(--border); border-radius: 6px; font-size:0.85rem;">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                            <button type="submit" class="btn-sm btn-primary">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

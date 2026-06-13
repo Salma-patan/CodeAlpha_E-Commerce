@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - ShopEasy{% endblock %}
+{% block content %}
+<div style="padding: 30px 0;">
+    <h1 class="section-title">🔒 Checkout</h1>
+    <div class="checkout-layout">
+        <div>
+            <div class="form-container" style="max-width: 100%; margin: 0;">
+                <h3 style="margin-bottom: 20px; color: var(--secondary);">Shipping Information</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center; padding:16px; font-size: 1.1rem;">
+                        <i class="fas fa-check-circle"></i> Place Order — ₹{{ cart.get_total }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="cart-summary">
+            <h3>Order Summary</h3>
+            {% for item in cart.cart_items.all %}
+            <div class="summary-row">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                <span>₹{{ item.subtotal }}</span>
+            </div>
+            {% endfor %}
+            <div class="summary-row summary-total">
+                <span>Total</span>
+                <span>₹{{ cart.get_total }}</span>
+            </div>
+            <a href="{% url 'store:cart' %}" class="btn-outline" style="display:block; text-align:center; margin-top:15px;">
+                ← Edit Cart
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

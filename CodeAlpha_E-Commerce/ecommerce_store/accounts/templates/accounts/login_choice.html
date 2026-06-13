@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Login - ShopEasy{% endblock %}
+{% block content %}
+<div class="login-choice">
+    <h1>Welcome to <span style="color: var(--primary)">ShopEasy</span></h1>
+    <p>Choose how you'd like to access your account</p>
+    <div class="choice-cards">
+        <div class="choice-card">
+            <div class="choice-icon">🛍️</div>
+            <h3>Customer</h3>
+            <p>Browse products, manage your cart, track orders, and enjoy a great shopping experience.</p>
+            <a href="{% url 'accounts:customer_login' %}" class="btn-primary" style="display: block; text-align: center; margin-bottom: 12px;">
+                <i class="fas fa-sign-in-alt"></i> Customer Login
+            </a>
+            <div class="form-footer">
+                New here? <a href="{% url 'accounts:customer_register' %}">Create Account</a>
+            </div>
+        </div>
+        <div class="choice-card">
+            <div class="choice-icon">🏪</div>
+            <h3>Product Owner</h3>
+            <p>List your products, manage inventory, process orders, and grow your online business.</p>
+            <a href="{% url 'accounts:owner_login' %}" class="btn-primary" style="display: block; text-align: center; margin-bottom: 12px;">
+                <i class="fas fa-store"></i> Owner Login
+            </a>
+            <div class="form-footer">
+                New seller? <a href="{% url 'accounts:owner_register' %}">Register as Owner</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} - ShopEasy{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'store:home' %}">Home</a>
+    <span class="sep">›</span>
+    <a href="{% url 'store:product_list' %}">Products</a>
+    <span class="sep">›</span>
+    <span>{{ product.name }}</span>
+</div>
+
+<div class="product-detail">
+    <div class="product-detail-img">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+        <i class="fas fa-box no-img"></i>
+        {% endif %}
+    </div>
+    <div class="product-detail-info">
+        {% if product.category %}<p class="product-category" style="font-size: 0.9rem;">{{ product.category.name }}</p>{% endif %}
+        <h1>{{ product.name }}</h1>
+        <p class="big-price">₹<span>{{ product.price }}</span></p>
+        
+        <span class="stock-badge {% if product.is_in_stock %}in-stock{% else %}out-stock{% endif %}">
+            {% if product.is_in_stock %}✓ In Stock ({{ product.stock }} available){% else %}✗ Out of Stock{% endif %}
+        </span>
+        
+        <div style="margin: 20px 0; color: var(--text-medium); line-height: 1.8;">
+            {{ product.description }}
+        </div>
+        
+        <div style="background: var(--primary-light); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <small style="color: var(--text-medium);">
+                <strong>Sold by:</strong> {{ product.owner.get_full_name|default:product.owner.username }}
+            </small>
+        </div>
+        
+        {% if product.is_in_stock and not user.is_owner %}
+        <form method="post" action="{% url 'store:add_to_cart' product.id %}">
+            {% csrf_token %}
+            <div class="qty-input">
+                <label>Quantity:</label>
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 1.1rem;">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+        </form>
+        {% elif not product.is_in_stock %}
+        <button disabled class="btn-outline" style="width:100%; justify-content:center; opacity: 0.6;">Out of Stock</button>
+        {% endif %}
+        
+        {% if user.is_owner and user == product.owner %}
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <a href="{% url 'store:edit_product' product.slug %}" class="btn-outline" style="flex:1; justify-content:center;">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <form method="post" action="{% url 'store:delete_product' product.slug %}" style="flex:1">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger" style="width:100%; padding: 10px; border-radius: var(--radius-sm);"
+                    onclick="return confirm('Are you sure?')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if related %}
+<div class="related-section">
+    <h2 class="section-title">Related Products</h2>
+    <div class="products-grid">
+        {% for p in related %}
+        <div class="product-card">
+            <div class="product-img">
+                {% if p.image %}<img src="{{ p.image.url }}" alt="{{ p.name }}">
+                {% else %}<i class="fas fa-box no-img"></i>{% endif %}
+            </div>
+            <div class="product-info">
+                <h3 class="product-name">{{ p.name }}</h3>
+                <p class="product-price">₹<span>{{ p.price }}</span></p>
+                <a href="{% url 'store:product_detail' p.slug %}" class="btn-outline btn-sm" style="display:block; text-align:center;">View</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

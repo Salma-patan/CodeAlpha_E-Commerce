@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }} - ShopEasy{% endblock %}
+{% block content %}
+<div style="padding: 30px 0; max-width: 800px;">
+    <div class="breadcrumb">
+        <a href="{% url 'store:order_list' %}">My Orders</a>
+        <span class="sep">›</span>
+        <span>Order #{{ order.id }}</span>
+    </div>
+    
+    <div class="order-detail-card">
+        <div class="order-header">
+            <div>
+                <h2>Order #{{ order.id }}</h2>
+                <p style="color: var(--text-light);">{{ order.created_at|date:"F d, Y — g:i A" }}</p>
+            </div>
+            <span class="badge badge-{{ order.status }}" style="font-size: 1rem; padding: 8px 18px;">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+        
+        <h4 style="margin-bottom: 12px;">Ordered Items</h4>
+        {% for item in order.items.all %}
+        <div style="display:flex; justify-content:space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+            <div>
+                <strong>{{ item.product.name }}</strong>
+                <p style="color: var(--text-light); font-size: 0.9rem;">₹{{ item.price }} × {{ item.quantity }}</p>
+            </div>
+            <strong>₹{{ item.subtotal }}</strong>
+        </div>
+        {% endfor %}
+        <div style="display:flex; justify-content:space-between; padding: 20px 0 0; font-size: 1.3rem; font-weight: 800;">
+            <span>Total</span>
+            <span>₹{{ order.total_price }}</span>
+        </div>
+    </div>
+    
+    <div class="order-detail-card">
+        <h4 style="margin-bottom: 12px;">Delivery Information</h4>
+        <p><strong>Address:</strong> {{ order.shipping_address }}</p>
+        <p><strong>Phone:</strong> {{ order.phone }}</p>
+        {% if order.notes %}<p><strong>Notes:</strong> {{ order.notes }}</p>{% endif %}
+    </div>
+    
+    <a href="{% url 'store:order_list' %}" class="btn-outline">← Back to Orders</a>
+</div>
+{% endblock %}

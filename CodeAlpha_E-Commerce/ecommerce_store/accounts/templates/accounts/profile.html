@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - ShopEasy{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div style="text-align:center; margin-bottom: 25px;">
+        <div style="font-size: 4rem; margin-bottom: 10px;">{% if user.is_owner %}🏪{% else %}🛍️{% endif %}</div>
+        <h1 class="form-title">{{ user.get_full_name|default:user.username }}</h1>
+        <p class="form-subtitle">{{ user.get_user_type_display }}</p>
+    </div>
+    <div style="background: var(--bg-light); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Phone:</strong> {{ user.phone|default:"Not provided" }}</p>
+        {% if user.is_customer %}<p><strong>Address:</strong> {{ user.address|default:"Not provided" }}</p>{% endif %}
+    </div>
+    {% if user.is_customer %}
+    <a href="{% url 'store:order_list' %}" class="btn-primary" style="display:block; text-align:center; margin-bottom: 10px;">View My Orders</a>
+    {% else %}
+    <a href="{% url 'store:owner_dashboard' %}" class="btn-primary" style="display:block; text-align:center; margin-bottom: 10px;">Go to Dashboard</a>
+    {% endif %}
+    <a href="{% url 'accounts:logout' %}" class="btn-outline" style="display:block; text-align:center;">Logout</a>
+</div>
+{% endblock %}

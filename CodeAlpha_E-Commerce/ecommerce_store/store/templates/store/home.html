@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}ShopEasy - Online Shopping{% endblock %}
+{% block content %}
+
+<section class="hero">
+    <div>
+        <h1>🛍️ Shop Everything</h1>
+        <p>Discover thousands of products at amazing prices</p>
+        <div class="hero-actions">
+            <a href="{% url 'store:product_list' %}" class="btn-primary" style="font-size: 1.1rem; padding: 14px 30px;">
+                <i class="fas fa-shopping-bag"></i> Shop Now
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:customer_register' %}" class="btn-outline" style="font-size: 1.1rem; padding: 14px 30px; border-color: var(--secondary);">
+                <i class="fas fa-user-plus"></i> Join Free
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if categories %}
+<section style="margin: 40px 0;">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Browse our curated collections</p>
+        </div>
+    </div>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        {% for cat in categories %}
+        <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" 
+           style="background: var(--white); border: 2px solid var(--border); padding: 10px 20px; border-radius: 25px; font-weight: 600; transition: all 0.3s;">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section style="margin: 40px 0;">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Latest Products</h2>
+            <p class="section-subtitle">Fresh arrivals just for you</p>
+        </div>
+        <a href="{% url 'store:product_list' %}" class="btn-outline">View All →</a>
+    </div>
+    {% if products %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-img">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                <i class="fas fa-box no-img"></i>
+                {% endif %}
+            </div>
+            <div class="product-info">
+                {% if product.category %}<p class="product-category">{{ product.category.name }}</p>{% endif %}
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-price">₹<span>{{ product.price }}</span></p>
+                <p class="product-stock {% if not product.is_in_stock %}out{% endif %}">
+                    {% if product.is_in_stock %}✓ In Stock ({{ product.stock }} left){% else %}✗ Out of Stock{% endif %}
+                </p>
+                <div class="product-actions">
+                    <a href="{% url 'store:product_detail' product.slug %}" class="btn-outline btn-sm">View</a>
+                    {% if product.is_in_stock and not user.is_owner %}
+                    <form method="post" action="{% url 'store:add_to_cart' product.id %}" style="flex:1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-primary btn-sm" style="width:100%">
+                            <i class="fas fa-cart-plus"></i> Add
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>No products yet</h3>
+        <p>Be the first to list a product!</p>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'accounts:owner_register' %}" class="btn-primary">Sell with Us</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+<section style="background: var(--primary); border-radius: var(--radius); padding: 50px; text-align: center; margin: 40px 0;">
+    <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 10px;">Want to sell on ShopZone?</h2>
+    <p style="font-size: 1.1rem; margin-bottom: 25px; color: #444;">List your products and reach thousands of customers</p>
+    <a href="{% url 'accounts:owner_register' %}" class="btn-outline" style="font-size: 1.1rem; padding: 14px 35px;">
+        <i class="fas fa-store"></i> Start Selling Today
+    </a>
+</section>
+{% endblock %}
