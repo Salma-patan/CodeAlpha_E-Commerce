@@ -20,6 +20,27 @@
 
 
 
+These is my first task from @codealpha. In that i learned how to design the website. 
+The project name was E-Commerce website. In this websites dual login page should be present. One is customer who buy the product and another person is product owner means whom upload the products. In these website you can easily buy a product and it is very simple and understandable way to use these website.
+
+
+Procedure to run:
+step-1:
+cd ecommerce-store
+step-2:
+py manage.py makemigrations
+step-3:
+py manage.py migrate
+setp-4: (optional)
+py manage.py createsuperuser
+step-5:
+py manage.py runserver
+
+You must get these type of text in command prompt:
+Starting development server at http://127.0.0.1:8000/           
+click or copy the link and paste in any browser you will see the output
+
+
 
 
 
